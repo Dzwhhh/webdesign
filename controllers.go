@@ -8,8 +8,9 @@ import (
 )
 
 func LoginController(ctx *framework.Context) error {
-	ctx.Json(200, "login success")
-	return nil
+	panic("an error happen")
+	// ctx.Json(200, "login success")
+	// return nil
 }
 
 func TimeoutController(ctx *framework.Context) error {

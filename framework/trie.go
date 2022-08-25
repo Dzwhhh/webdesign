@@ -10,10 +10,10 @@ type Trie struct {
 }
 
 type node struct {
-	segment string            // 节点对应的uri片段
-	handler ControllerHandler // 节点绑定的handler
-	childs  []*node           // 节点的所有子节点
-	isLast  bool              // 是否为根节点
+	segment  string              // 节点对应的uri片段
+	handlers []ControllerHandler // 中间件 + 节点绑定的handler
+	childs   []*node             // 节点的所有子节点
+	isLast   bool                // 是否为根节点
 }
 
 func NewTrie() *Trie {
@@ -28,17 +28,17 @@ func NewTrie() *Trie {
 }
 
 // 查找路由函数
-func (t *Trie) FindHandler(uri string) ControllerHandler {
+func (t *Trie) FindHandler(uri string) []ControllerHandler {
 	matchNode := t.root.matchNode(uri)
 	if matchNode == nil {
 		return nil
 	}
-	return matchNode.handler
+	return matchNode.handlers
 
 }
 
 // 添加路由函数
-func (t *Trie) AddRouter(uri string, handler ControllerHandler) error {
+func (t *Trie) AddRouter(uri string, handlers []ControllerHandler) error {
 	n := t.root
 	if n.matchNode(uri) != nil {
 		return errors.New("route exist:" + uri)
@@ -69,7 +69,7 @@ func (t *Trie) AddRouter(uri string, handler ControllerHandler) error {
 			cnode.segment = segment
 			if isLast {
 				cnode.isLast = true
-				cnode.handler = handler
+				cnode.handlers = handlers
 			}
 			n.childs = append(n.childs, cnode)
 			objNode = cnode

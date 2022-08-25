@@ -15,5 +15,5 @@ func registerRoute(core *framework.Core) {
 	groupCore.Post("/start", SubjectStartController)
 
 	// 动态路由
-	core.Get("/timeout/:seconds", TimeoutController)
+	core.Get("/timeout/:duration", TimeoutController)
 }

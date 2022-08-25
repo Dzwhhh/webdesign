@@ -14,6 +14,7 @@ type node struct {
 	handlers []ControllerHandler // 中间件 + 节点绑定的handler
 	childs   []*node             // 节点的所有子节点
 	isLast   bool                // 是否为根节点
+	parent   *node               // 父节点，双向指针
 }
 
 func NewTrie() *Trie {
@@ -71,6 +72,8 @@ func (t *Trie) AddRouter(uri string, handlers []ControllerHandler) error {
 				cnode.isLast = true
 				cnode.handlers = handlers
 			}
+			// 修改父节点指针
+			cnode.parent = n
 			n.childs = append(n.childs, cnode)
 			objNode = cnode
 		}
@@ -91,6 +94,25 @@ func newNode() *node {
 		childs:  []*node{},
 		isLast:  false,
 	}
+}
+
+// 从uri中解析通配符params
+func (n *node) parseParamsFromEndNode(uri string) map[string]string {
+	ret := make(map[string]string)
+	segments := strings.Split(uri, "/")
+	len := len(segments)
+
+	curNode := n
+	for i := len - 1; i >= 0; i-- {
+		if curNode.segment == "" {
+			break
+		}
+		if isWildSegment(curNode.segment) {
+			ret[curNode.segment[1:]] = segments[i]
+		}
+		curNode = curNode.parent
+	}
+	return ret
 }
 
 // 过滤下一层满足segment规则的节点

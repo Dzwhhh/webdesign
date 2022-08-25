@@ -1,9 +1,13 @@
 package framework
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 type Core struct {
@@ -68,14 +72,14 @@ func (c *Core) Use(middlewares ...ControllerHandler) {
 	c.middlewares = append(c.middlewares, middlewares...)
 }
 
-func (c *Core) FindRouteByRequest(r *http.Request) []ControllerHandler {
-	// uri 和 method 全部转换为大写
+func (c *Core) FindRouteNodeByRequest(r *http.Request) *node {
+	//uri 和 method 全部转换为大写
 	upperUri := strings.ToUpper(r.URL.Path)
 	upperMethod := strings.ToUpper(r.Method)
 
 	// 查找第一层map
 	if methodHandlers, ok := c.router[upperMethod]; ok {
-		return methodHandlers.FindHandler(upperUri)
+		return methodHandlers.root.matchNode(upperUri)
 	}
 	return nil
 }
@@ -85,19 +89,22 @@ func (c *Core) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := NewContext(r, w)
 
 	// 寻找路由
-	handlers := c.FindRouteByRequest(r)
-
-	if handlers == nil {
-		ctx.Json(404, "Not Found")
+	node := c.FindRouteNodeByRequest(r)
+	if node == nil {
+		ctx.SetStatus(404).Json("Not Found")
 		return
 	}
 
 	// 设置context中的handlers字段
-	ctx.SetHandlers(handlers)
+	ctx.SetHandlers(node.handlers)
+
+	// 设置路由参数
+	params := node.parseParamsFromEndNode(r.URL.Path)
+	ctx.SetParams(params)
 
 	// 调用路由函数
 	if err := ctx.Next(); err != nil {
-		ctx.Json(500, "inner error")
+		ctx.SetStatus(500).Json("Internal Error")
 	}
 }
 
@@ -112,5 +119,17 @@ func (c *Core) Listen(port string) {
 		Addr:    port,
 		Handler: c,
 	}
-	server.ListenAndServe()
+	go func() {
+		server.ListenAndServe()
+	}()
+
+	// 关闭连接
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	// 阻塞当前Goroutine等待信息
+	<-quit
+
+	if err := server.Shutdown(context.Background()); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
 }

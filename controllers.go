@@ -74,7 +74,7 @@ func EchoServiceController(ctx *gin.Context) {
 	if serviceName == "echo" {
 		instance, err := ctx.MakeNew(echo.Key, []interface{}{msg, name})
 		if err == nil {
-			service := instance.(*echo.EchoService)
+			service := instance.(echo.Service)
 			result := service.Echo()
 			ctx.ISetOkStatus().IJson(result)
 			return

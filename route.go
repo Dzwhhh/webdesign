@@ -1,19 +1,19 @@
 package main
 
 import (
-	"github.com/demian/webdesign/framework"
+	"github.com/demian/webdesign/framework/gin"
 	"github.com/demian/webdesign/framework/middleware"
 )
 
-func registerRoute(core *framework.Core) {
+func registerRoute(core *gin.Engine) {
 	// 静态路由
-	core.Get("/user/login", middleware.Test1(), LoginController)
+	core.GET("/user/login", middleware.Test1(), LoginController)
 
 	// 共同前缀
 	groupCore := core.Group("/subject")
-	groupCore.Get("/finish", middleware.Test2(), SubjectFinishController)
-	groupCore.Post("/start", SubjectStartController)
+	groupCore.GET("/finish", middleware.Test2(), SubjectFinishController)
+	groupCore.POST("/start", SubjectStartController)
 
 	// 动态路由
-	core.Get("/timeout/:duration", TimeoutController)
+	core.GET("/timeout/:duration", TimeoutController)
 }

@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/demian/webdesign/framework"
+	"github.com/demian/webdesign/framework/gin"
 )
 
-func LoginController(ctx *framework.Context) error {
-	ctx.SetOkStatus().Json("Login Success")
-	return nil
+func LoginController(ctx *gin.Context) {
+	ctx.ISetOkStatus().IJson("Login Success")
 }
 
-func TimeoutController(ctx *framework.Context) error {
-	d, _ := ctx.ParamInt("duration", 10)
+func TimeoutController(ctx *gin.Context) {
+	d, _ := ctx.DefaultParamInt("duration", 10)
 	fmt.Println("duration:", d)
 	durationCtx, cancel := context.WithTimeout(ctx, time.Duration(d)*time.Second)
 	defer cancel()
@@ -28,19 +27,16 @@ func TimeoutController(ctx *framework.Context) error {
 
 	select {
 	case <-durationCtx.Done():
-		ctx.SetStatus(500).Json("Time Out")
+		ctx.ISetStatus(500).IJson("Time Out")
 	case <-finish:
-		ctx.SetOkStatus().Json("Finish")
+		ctx.ISetOkStatus().IJson("Finish")
 	}
-	return nil
 }
 
-func SubjectFinishController(ctx *framework.Context) error {
-	ctx.SetOkStatus().Json("Subject Finish")
-	return nil
+func SubjectFinishController(ctx *gin.Context) {
+	ctx.ISetOkStatus().IJson("Subject Finish")
 }
 
-func SubjectStartController(ctx *framework.Context) error {
-	ctx.SetOkStatus().Json("Subject Start")
-	return nil
+func SubjectStartController(ctx *gin.Context) {
+	ctx.ISetOkStatus().IJson("Subject Start")
 }

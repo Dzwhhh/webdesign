@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/demian/webdesign/framework"
+	"github.com/demian/webdesign/framework/gin"
 )
 
-func Timeout(d time.Duration) framework.ControllerHandler {
-	return func(c *framework.Context) error {
+func Timeout(d time.Duration) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		finish := make(chan struct{}, 1)
 		panicChan := make(chan interface{}, 1)
 
@@ -29,13 +29,12 @@ func Timeout(d time.Duration) framework.ControllerHandler {
 
 		select {
 		case p := <-panicChan:
-			c.SetStatus(500).Json("Internal Error")
+			c.ISetStatus(500).IJson("Internal Error")
 			fmt.Println(p.(string))
 		case <-durationCtx.Done():
-			c.SetStatus(500).Json("Time Out")
+			c.ISetStatus(500).IJson("Time Out")
 		case <-finish:
 			fmt.Println("finish")
 		}
-		return nil
 	}
 }

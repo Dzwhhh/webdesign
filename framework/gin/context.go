@@ -19,6 +19,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/demian/webdesign/framework"
 	"github.com/demian/webdesign/framework/gin/binding"
 	"github.com/demian/webdesign/framework/gin/render"
 	"github.com/gin-contrib/sse"
@@ -84,6 +85,9 @@ type Context struct {
 	// SameSite allows a server to define a cookie attribute making it impossible for
 	// the browser to send this cookie along with cross-site requests.
 	sameSite http.SameSite
+
+	// 服务容器
+	container framework.Container
 }
 
 /************************************/

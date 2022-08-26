@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/demian/webdesign/framework/gin"
+	"github.com/demian/webdesign/provider/demo"
+	"github.com/demian/webdesign/provider/echo"
 )
 
 func LoginController(ctx *gin.Context) {
@@ -39,4 +41,44 @@ func SubjectFinishController(ctx *gin.Context) {
 
 func SubjectStartController(ctx *gin.Context) {
 	ctx.ISetOkStatus().IJson("Subject Start")
+}
+
+func UseServiceController(ctx *gin.Context) {
+	serviceName, _ := ctx.DefaultParamString("name", "")
+
+	if serviceName == "demo" {
+		instance := ctx.MustMake(demo.Key).(demo.Service)
+		groot := instance.GetGroot()
+		ctx.ISetOkStatus().IJson(groot)
+	} else {
+		ctx.ISetStatus(403).IJson("Service Not Found")
+		return
+	}
+}
+
+func EchoServiceController(ctx *gin.Context) {
+	type info struct {
+		Msg  string `json:"msg"`
+		Name string `json:"name"`
+	}
+	var inf info
+	err := ctx.BindJSON(&inf)
+
+	if err != nil {
+		ctx.ISetStatus(501).IJson("Parse Request Failed")
+	}
+
+	msg, name := inf.Msg, inf.Name
+	serviceName, _ := ctx.DefaultParamString("echo", "")
+
+	if serviceName == "echo" {
+		instance, err := ctx.MakeNew(echo.Key, []interface{}{msg, name})
+		if err == nil {
+			service := instance.(*echo.EchoService)
+			result := service.Echo()
+			ctx.ISetOkStatus().IJson(result)
+			return
+		}
+	}
+	ctx.ISetStatus(403).IJson("Service Not Found")
 }

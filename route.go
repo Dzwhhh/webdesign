@@ -16,4 +16,6 @@ func registerRoute(core *gin.Engine) {
 
 	// 动态路由
 	core.GET("/timeout/:duration", TimeoutController)
+	core.GET("/service/:name", UseServiceController)
+	core.POST("/service/:echo", EchoServiceController)
 }

@@ -10,11 +10,17 @@ import (
 
 	"github.com/demian/webdesign/framework/gin"
 	"github.com/demian/webdesign/framework/middleware"
+	"github.com/demian/webdesign/provider/demo"
+	"github.com/demian/webdesign/provider/echo"
 )
 
 func main() {
-	// 获取handler
+	// 创建engine
 	core := gin.New()
+
+	// 绑定具体的服务
+	core.Bind(&demo.DemoServiceProvider{})
+	core.Bind(&echo.EchoServiceProvider{})
 
 	// 配置全局中间件
 	core.Use(gin.Recovery())

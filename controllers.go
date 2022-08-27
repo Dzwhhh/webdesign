@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/demian/webdesign/framework/contract"
 	"github.com/demian/webdesign/framework/gin"
-	"github.com/demian/webdesign/provider/demo"
-	"github.com/demian/webdesign/provider/echo"
 )
 
 func LoginController(ctx *gin.Context) {
@@ -47,7 +46,7 @@ func UseServiceController(ctx *gin.Context) {
 	serviceName, _ := ctx.DefaultParamString("name", "")
 
 	if serviceName == "demo" {
-		instance := ctx.MustMake(demo.Key).(demo.Service)
+		instance := ctx.MustMake(contract.DemoKey).(contract.DemoIService)
 		groot := instance.GetGroot()
 		ctx.ISetOkStatus().IJson(groot)
 	} else {
@@ -72,9 +71,9 @@ func EchoServiceController(ctx *gin.Context) {
 	serviceName, _ := ctx.DefaultParamString("echo", "")
 
 	if serviceName == "echo" {
-		instance, err := ctx.MakeNew(echo.Key, []interface{}{msg, name})
+		instance, err := ctx.MakeNew(contract.EchoKey, []interface{}{msg, name})
 		if err == nil {
-			service := instance.(echo.Service)
+			service := instance.(contract.EchoIService)
 			result := service.Echo()
 			ctx.ISetOkStatus().IJson(result)
 			return

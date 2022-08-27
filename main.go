@@ -10,8 +10,8 @@ import (
 
 	"github.com/demian/webdesign/framework/gin"
 	"github.com/demian/webdesign/framework/middleware"
-	"github.com/demian/webdesign/provider/demo"
-	"github.com/demian/webdesign/provider/echo"
+	"github.com/demian/webdesign/framework/provider/demo"
+	"github.com/demian/webdesign/framework/provider/echo"
 )
 
 func main() {

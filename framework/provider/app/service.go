@@ -86,7 +86,7 @@ func NewAppSevice(params ...interface{}) (interface{}, error) {
 	}
 
 	container := params[0].(framework.Container)
-	baseFolder := params[0].(string)
+	baseFolder := params[1].(string)
 	return &AppService{
 		container:  container,
 		baseFolder: baseFolder,
